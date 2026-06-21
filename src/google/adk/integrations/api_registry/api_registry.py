@@ -23,6 +23,7 @@ from google.adk.tools.mcp_tool.mcp_session_manager import StreamableHTTPConnecti
 from google.adk.tools.mcp_tool.mcp_toolset import McpToolset
 import google.auth
 import google.auth.transport.requests
+import google.auth.transport.mtls
 import httpx
 
 API_REGISTRY_URL = "https://cloudapiregistry.googleapis.com"
@@ -53,7 +54,6 @@ class ApiRegistry:
     self._mcp_servers: dict[str, dict[str, Any]] = {}
     self._header_provider = header_provider
 
-    import google.auth.transport.mtls
     if google.auth.transport.mtls.should_use_mtls_endpoint():
         base_url = "https://cloudapiregistry.mtls.googleapis.com"
     else:
