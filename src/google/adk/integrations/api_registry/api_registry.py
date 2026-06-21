@@ -53,13 +53,23 @@ class ApiRegistry:
     self._mcp_servers: dict[str, dict[str, Any]] = {}
     self._header_provider = header_provider
 
-    url = f"{API_REGISTRY_URL}/v1beta/projects/{self.api_registry_project_id}/locations/{self.location}/mcpServers"
+    import google.auth.transport.mtls
+    if google.auth.transport.mtls.should_use_mtls_endpoint():
+        base_url = "https://cloudapiregistry.mtls.googleapis.com"
+    else:
+        base_url = API_REGISTRY_URL
+        
+    url = f"{base_url}/v1beta/projects/{self.api_registry_project_id}/locations/{self.location}/mcpServers"
 
     try:
       headers = self._get_auth_headers()
       headers["Content-Type"] = "application/json"
       page_token = None
-      with httpx.Client() as client:
+      
+      ssl_context = google.auth.transport.mtls.get_default_ssl_context()
+      verify_param = ssl_context if ssl_context else True
+      
+      with httpx.Client(verify=verify_param) as client:
         while True:
           params = {
               # Include all the apis including disabled ones. API registry no longer supports enabling APIs.
